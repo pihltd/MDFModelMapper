@@ -1,9 +1,15 @@
 lift_from_model_files:
-  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/8.0.2/model-desc/cds-model.yml'
-  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/8.0.2/model-desc/cds-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
 lift_to_model_files:
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
-mapping_file: './CCDI_3.1.0-CDS_10.0.0.tsv'
+mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
+#mapping_file: './mapped.tsv'
+string_match_mapping: True
+reverse_mapping: False
+ #The option below is used if you are doing both string and CDE matching and want a CDE only file as well.
+# To emable this, replace None with the full path and filename of the CDE only mapping results
+cde_only_mapping: None
