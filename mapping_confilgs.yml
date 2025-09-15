@@ -6,10 +6,13 @@ lift_from_model_files:
 lift_to_model_files:
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
-mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
-#mapping_file: './mapped.tsv'
+#mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
+mapping_file: './mapped.tsv'
 string_match_mapping: True
 reverse_mapping: False
  #The option below is used if you are doing both string and CDE matching and want a CDE only file as well.
 # To emable this, replace None with the full path and filename of the CDE only mapping results
 cde_only_mapping: None
+# Value mapping will be done if there is a file name here.  Use None to turn off
+#value_map_file: None 
+value_map_file: './value_mapping.tsv'
