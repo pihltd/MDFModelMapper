@@ -1,8 +1,8 @@
 lift_from_model_files:
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
-  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
-  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
 lift_to_model_files:
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
@@ -16,3 +16,5 @@ cde_only_mapping: None
 # Value mapping will be done if there is a file name here.  Use None to turn off
 #value_map_file: None 
 value_map_file: './value_mapping.tsv'
+# Synonym mapping will be done as part of value mapping if requested. True turns on synonym mapping
+synonym_mapping: True
