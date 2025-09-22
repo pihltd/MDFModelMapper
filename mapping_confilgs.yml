@@ -9,6 +9,7 @@ lift_to_model_files:
 #mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
 mapping_file: './mapped.tsv'
 string_match_mapping: True
+cde_mapping: True
 reverse_mapping: False
  #The option below is used if you are doing both string and CDE matching and want a CDE only file as well.
 # To emable this, replace None with the full path and filename of the CDE only mapping results
@@ -17,4 +18,5 @@ cde_only_mapping: None
 #value_map_file: None 
 value_map_file: './value_mapping.tsv'
 # Synonym mapping will be done as part of value mapping if requested. True turns on synonym mapping
-synonym_mapping: True
+#synonym_mapping: True
+synonym_mapping: False

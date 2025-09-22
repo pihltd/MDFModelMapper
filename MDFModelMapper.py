@@ -1,5 +1,6 @@
 import bento_mdf
 import pandas as pd
+import numpy as np
 import argparse
 import yaml
 import requests
@@ -36,7 +37,7 @@ def stsPVQuery(id, version, model=False, verbose=False):
 
 
 
-def conceptCodeQuery(conceptcode, verbose):
+'''def conceptCodeQuery(conceptcode, verbose):
     # Searches caDSR with the concept code and returns CDE info
     url = f"https://cadsrapi.cancer.gov/rad/NCIAPI/1.0/api/DataElements/Concept?conceptCode={conceptcode}&headerOnly=true"
     headers = {'accept': 'application/json'}
@@ -52,7 +53,7 @@ def conceptCodeQuery(conceptcode, verbose):
             return None
     except requests.exceptions.HTTPError as e:
         print("HTTP Error: {e}")
-        return None
+        return None'''
 
 
 
@@ -73,7 +74,7 @@ def getCDEID(props, prop, verbose= False):
     else:
         return None, None
 
-def CDEDictionary(props, verbose = False):
+'''def CDEDictionary(props, verbose = False):
     # id_dict is a dictionary with the CDEID as the key and a list of dicitonary of property name: node name as the value
     # CDEID:[{property name: node name}]
     if verbose:
@@ -88,9 +89,21 @@ def CDEDictionary(props, verbose = False):
                 templist = id_dict[cdeid]
                 templist.append({prop[1]:prop[0]})
                 id_dict[cdeid] = templist
-    return id_dict
+    return id_dict'''
 
-def PropStringDictionary(props, verbose= False):
+def CDEDataFrame(props, verbose = False):
+    # Using a dataframe instead
+    if verbose:
+        print(f"CDEDataFrame for Props {props}")
+    columns = ["cde_id", "cde_version", "property_name", "node_name"]
+    final_df = pd.DataFrame(columns=columns)
+    for prop in props:
+        if props[prop].concept is not None:
+            cdeid, cdeversion = getCDEID(props, prop)
+            final_df.loc[len(final_df)] = {"cde_id": cdeid, "cde_version":cdeversion, "property_name": prop[1], "node_name": prop[0]}
+    return final_df
+
+'''def PropStringDictionary(props, verbose= False):
     # Creates a dictionary with property names as key and a dictionary of {node:CDEID} as the value
     # {PropName:{NodeName:CDEID}}
     if verbose:
@@ -102,9 +115,9 @@ def PropStringDictionary(props, verbose= False):
         else:
             cdeid = 'None'
         prop_dict[prop[1]] = {prop[0]:cdeid}
-    return prop_dict
+    return prop_dict'''
                 
-def CDEInfo(mdf, verbose= False):
+'''def CDEInfo(mdf, verbose= False):
     # Returns a dictionary of cdeid:cde version
     if verbose:
         print(f"CDEInfo for {mdf.model.handle}")
@@ -120,19 +133,16 @@ def CDEInfo(mdf, verbose= False):
                     final[workingterm['origin_id']] = workingterm['origin_version']
                 else:
                     final[workingterm['origin_id']] = '1.00'
-    return final
+    return final'''
                 
 
 def PVDictionary(cdeid, cdeversion,  verbose=False):
     #Returns a dictionary of {concept code: PV term}.
-    # Will return a synonym dictionary of {concept code: [synonyms] if getSynonyms is True}
-    # NOTE:  May want synonyms in their own subroutine even though it's a duplicate call
     if verbose:
         print(f"PVDictionary for CDE ID {cdeid} and version {cdeversion}")
     final = {}
     #synonyms = {}
     cdejson = stsPVQuery(cdeid, cdeversion, False, verbose)
-    # TODO What to do if cdejson is 404 error
     if verbose:
         print(cdejson)
     # If multiple models have different names for a CDE it might come back as a list
@@ -141,16 +151,11 @@ def PVDictionary(cdeid, cdeversion,  verbose=False):
             if len(cdejson['permissibleValues'][0]) > 0:
                 for pv in cdejson['permissibleValues'][0]:
                     final[pv['ncit_concept_code']] = pv['value']
-                    #if getSynonyms:
-                    #    synonyms[pv['ncit_concept_code']] = pv['synonyms']
             else:
                 final = None
         elif len(cdejson['permissibleValues']) > 0:
-            #print(cdejson)
             for pv in cdejson['permissibleValues']:
                 final[pv['ncit_concept_code']] = pv['value']
-            #if getSynonyms:
-            #    synonyms[pv['ncit_concept_code']] = pv['synonyms']
         else:
             final = None
     else:
@@ -181,26 +186,39 @@ def SynonymDictionary(modelhandle, modelversion, verbose=False):
         pvjson = None
     return final
 
-def conceptCodeCDEMapping(conceptcode, mapping_string, verbose):
+
+
+'''def conceptCodeCDEMapping(conceptcode, mapping_string, verbose):
     # Returns {cdeid:{node:property}}
     # Mapping string should be {property name:{node name:cde id}}
     #
     # Need a quck remap of mapping string to {cdeid:{node, property}}
     redone = {}
     final = {}
+    if verbose:
+        print(f"CDEMapping with {conceptcode}")
     for propname, info in mapping_string.items():
         for node, cdeid in info.items():
+             # ACTUAL: Redone: {('11444542', '2.00'): {'program': 'program_name'}, 'None': {'version': 'description'}, ('11459801', '2.00'): {'program': 'program_short_name'}
             redone[cdeid] = {node:propname}
+    print(f"Redone: {redone}\n")
     ccjson = conceptCodeQuery(conceptcode, verbose)
-    for dataelement in ccjson['DataElements']:
-        if dataelement['publicId'] in redone:
-            final[dataelement['publicId']] = redone[dataelement['publicId']]
-    return final
+    if verbose:
+        print(f"conceptCodeQuery Result: {ccjson}")
+    if ccjson is not None:
+        for dataelement in ccjson['DataElements']:
+            if dataelement['publicId'] in redone:
+                final[dataelement['publicId']] = redone[dataelement['publicId']]
+                print(f"Final dict: {final}")
+            else:
+                print(f"Data Element: {dataelement['publicId']} is not found in redone")
+    return final'''
             
         
-
+'''
 def doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, lift_from_cdeinfo, lift_to_cdeinfo, mapped_df, verbose=False):
     # Map Properties by CDE ID
+    # Lift_from and Lift_to dict  CDEID:[{property name: node name}]
     if verbose:
         print(f"doCDEPropertyMapping")
     for cdeid, propinfolist in lift_from_dict.items():
@@ -210,6 +228,10 @@ def doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to
                 if len(lift_to_dict[cdeid]) == 1:
                     if verbose:
                         print(f"Mapping CDE ID {cdeid}")
+                        if len(lift_to_dict[cdeid][0].keys()[0]) <= 1:
+                            print(f"Start: {lift_to_dict[cdeid][0]}")
+                            print(f"Node: {lift_to_dict[cdeid][0].keys()}")
+                            print(f"Values: {lift_to_dict[cdeid][0].values()}")
                     mapped_df.loc[len(mapped_df)] = {'lift_from_node': list(propinfo.values())[0],
                                                     'lift_from_prop': list(propinfo.keys())[0],
                                                     'lift_from_cdeID': cdeid,
@@ -239,16 +261,37 @@ def doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to
                                                             'lift_to_model': lift_to_model.model.handle,
                                                             'lift_to_version': lift_to_model.model.version,
                                                             'mapping_type': 'CDE'}
-    return mapped_df
+    return mapped_df'''
 
+
+def doCDEPropertyMapping2(from_df, to_df, mapped_df, lift_from_model, lift_to_model,verbose=False):
+    for index, row in from_df.iterrows():
+        if row['cde_id'] in to_df['cde_id'].unique():
+            cdeid = row['cde_id']
+            to_rows_df = to_df.query('cde_id == @cdeid')
+            for to_index, to_row in to_rows_df.iterrows():
+                mapped_df.loc[len(mapped_df)] = {'lift_from_node': row['node_name'],
+                                                    'lift_from_prop': row['property_name'],
+                                                    'lift_from_cdeID': row['cde_id'],
+                                                    'lift_from_cdeVersion': row['cde_version'],
+                                                    'lift_from_model': lift_from_model.model.handle,
+                                                    'lift_from_version': lift_from_model.model.version,
+                                                    'lift_to_node': to_row['node_name'],
+                                                    'lift_to_prop': to_row['property_name'],
+                                                    'lift_to_cdeID': to_row['cde_id'],
+                                                    'lift_to_cdeVersion': to_row['cde_version'],
+                                                    'lift_to_model': lift_to_model.model.handle,
+                                                    'lift_to_version': lift_to_model.model.version,
+                                                    'mapping_type': 'CDE'}
+    return mapped_df
+            
+'''
 def doStringPropertyMapping(lift_from_model, lift_to_model, mapped_df, verbose= False):
     # Map Properties by string matching
     if verbose:
         print("doStringPropertyMapping")
     lift_from_string = PropStringDictionary(lift_from_model.model.props)
     lift_to_string = PropStringDictionary(lift_to_model.model.props)
-    #if configs['synonym_mapping']:
-    #    lift_to_synonyms = SynonymDictionary(lift_to_model.model.handle, lift_to_model.model.version)
         
     for propname, nodeinfo in lift_from_string.items():
         # Only map if not already mapped by CDE
@@ -267,10 +310,36 @@ def doStringPropertyMapping(lift_from_model, lift_to_model, mapped_df, verbose= 
                                                 'lift_to_model': lift_to_model.model.handle,
                                                 'lift_to_version': lift_to_model.model.version,
                                                 'mapping_type': 'String'}
+    return mapped_df'''
+
+
+def doStringPropertyMapping2(from_df, to_df, mapped_df, lift_from_model, lift_to_model, verbose=False):
+    # Map properties by sting matching
+    for index, row in from_df.iterrows():
+        if row['property_name'] not in mapped_df['lift_from_prop'].unique():
+            query = row['property_name']
+            to_row_df = to_df.query('property_name == @query')
+            for index, to_row in to_row_df.iterrows():
+                if verbose:
+                    print(f"String mapping {to_row['property_name']}")
+                mapped_df.loc[len(mapped_df)] = {'lift_from_node': row['node_name'],
+                                                'lift_from_prop': row['property_name'],
+                                                'lift_from_cdeID': row['cde_id'],
+                                                'lift_from_cdeVersion': row['cde_version'],
+                                                'lift_from_model': lift_from_model.model.handle ,
+                                                'lift_from_version': lift_from_model.model.version,
+                                                'lift_to_node': to_row['node_name'],
+                                                'lift_to_prop': to_row['property_name'],
+                                                'lift_to_cdeID': to_row['cde_id'],
+                                                'lift_to_cdeVersion': to_row['cde_version'],
+                                                'lift_to_model': lift_to_model.model.handle,
+                                                'lift_to_version': lift_to_model.model.version,
+                                                'mapping_type': 'String'}
     return mapped_df
+                
 
 
-
+'''
 def doConceptCodeValueMapping(lift_from_cdeinfo, lift_to_cdeinfo, lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, mapped_pv_df, verbose = False):
     # Will match PVs using concept codes for properties that have a CDE
     
@@ -329,9 +398,79 @@ def doConceptCodeValueMapping(lift_from_cdeinfo, lift_to_cdeinfo, lift_from_mode
                                             'lift_to_version': lift_to_model.version,
                                             'mapping_type': 'Concept Code Mapping'
                                         }
+    return mapped_pv_df'''
+
+
+def conceptCodifier(df, verbose=False):
+    # {concept code: PV term}
+    columns = ["cde_id", "cde_version", "property_name", "node_name", "permissible_value", "concept_code"]
+    new_df = pd.DataFrame(columns=columns)
+    for index, row in df.iterrows():
+        pvstuff = PVDictionary(row['cde_id'], row['cde_version'], verbose)
+        if pvstuff is not None:
+            for concept_code, pv in pvstuff.items():
+                new_df.loc[len(new_df)] = {
+                    "cde_id": row['cde_id'],
+                    "cde_version": row['cde_version'],
+                    "property_name": row['property_name'],
+                    "node_name": row['node_name'],
+                    "permissible_value": pv,
+                    "concept_code": concept_code
+                }
+        else:
+            new_df.loc[len(new_df)] = {
+                    "cde_id": row['cde_id'],
+                    "cde_version": row['cde_version'],
+                    "property_name": row['property_name'],
+                    "node_name": row['node_name'],
+                    "permissible_value": np.nan,
+                    "concept_code": np.nan
+            }
+    return new_df 
+        
+
+def doConceptCodeValueMapping2(from_df, to_df, lift_from_model, lift_to_model, mapped_pv_df, verbose = False):
+    # Will match PVs using concept codes for properties that have a CDE
+    # NOTE: the from_df and to_df have been modified to have pvs and concept codes
+    
+    # Step 1 - get from and to properties.  
+    #          In from, to_df['property_name']
+    #          Passed in as parameters for the subrouting
+    # Step 2 - If from property is in to property, continue.  There's a match and we can compare PVs
+    #          CDEs in row['cde_id']
+    # Step 3 - Get from and to PV lists and concept codes
+    #          lift_from_cdeinfo, lift_to_cdeinfo have {cdeid:cdeversion}.  Those can be turned into PV lists with PVDictionary.  {concept code: PV term}
+    # Step 4 - For each from concept code, look for to concept code.  Add to df if match
+    #          compare from concept code to to concept codes.
+    if verbose:
+        print("doConceptCodeValueMapping")
+    for index, row in from_df.iterrows():
+        if row['concept_code'] in to_df['concept_code'].unique():
+            cc = row['concept_code']
+            temp_df = to_df.query('concept_code ==@cc')
+            for to_index, to_row in temp_df.iterrows():
+                mapped_pv_df.loc[len(mapped_pv_df)] = {
+                                            'lift_from_node': row['node_name'],
+                                            'lift_from_prop': row['property_name'],
+                                            'lift_from_cdeID': row['cde_id'],
+                                            'lift_from_cdeVersion': row['cde_version'],
+                                            'lift_from_pv': row['permissible_value'],
+                                            'lift_from_conceptCode': row['concept_code'],
+                                            'lift_from_model': lift_from_model.model.handle,
+                                            'lift_from_version': lift_from_model.model.version,
+                                            'lift_to_node': to_row['node_name'],
+                                            'lift_to_prop': to_row['property_name'],
+                                            'lift_to_cdeID': to_row['cde_id'],
+                                            'lift_to_cdeVersion': to_row['cde_version'],
+                                            'lift_to_pv': to_row['permissible_value'],
+                                            'lift_to_conceptCode': to_row['concept_code'],
+                                            'lift_to_model': lift_to_model.handle,
+                                            'lift_to_version': lift_to_model.version,
+                                            'mapping_type': 'Concept Code Mapping'
+                                        }
     return mapped_pv_df
 
-
+'''
 def doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, verbose= False):
     # Matches PV via string matching to known synonyms
     #
@@ -370,10 +509,15 @@ def doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, verbose=
                                 # Need the to node, property and cdeID.
                                 # 
                                 #{cdeid:{node, property}}
-                                ccinfo = conceptCodeCDEMapping(conceptCode, lift_to_string, verbose)
-                                for to_cdeid, info in ccinfo.items():
-                                    for to_node, to_prop in info.items():
-                                        mapped_pv_df.loc[len(mapped_pv_df)] = {'lift_from_node': list(propinfo.values())[0],
+                            ccinfo = conceptCodeCDEMapping(conceptCode, lift_to_string, verbose)
+                            print(f"CCinfo: {ccinfo}")
+                            for to_cdeid, info in ccinfo.items():
+                                print("for to_cdeid")
+                                for to_node, to_prop in info.items():
+                                    print("to_node")
+                                    if verbose:
+                                        print(f"Adding to DF: to_cdeid: {cdeid}\tto_node: {to_node}\tto_prop: {to_prop}")
+                                    mapped_pv_df.loc[len(mapped_pv_df)] = {'lift_from_node': list(propinfo.values())[0],
                                                                     'lift_from_prop': propname,
                                                                     'lift_from_cdeID': cdeid,
                                                                     'lift_from_cdeVersion':cdeversion,
@@ -389,8 +533,42 @@ def doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, verbose=
                                                                     'lift_to_conceptCode': synConceptCode,
                                                                     'lift_to_model': lift_to_model.handle,
                                                                     'lift_to_version': lift_to_model.version,
-                                                                    'mapping_type': 'Concept Code Mapping'}
+                                                                    'mapping_type': 'Synonym Mapping'}
+                                    mapped_pv_df.to_csv('./df_log.csv', sep="\t", index=False)
+                else:
+                    if verbose:
+                        print(f"Skipping. PV {pvText} was mapped by concept code")
                 
+    return mapped_pv_df'''
+
+def doSynonymValueMapping2(from_df, to_df, mapped_pv_df, lift_from_model, lift_to_model, verbose):
+    lift_to_synonyms = SynonymDictionary(lift_to_model.model.handle, lift_to_model.model.version, verbose)
+    # {concept code: [synonyms]} 
+    for index, row in from_df.iterrows():
+        if row['concept_code'] not in mapped_pv_df['lift_from_conceptCode'].unique():
+            if row['concept_code'] in lift_to_synonyms.keys():
+                for to_cc, synlist in lift_to_synonyms.items():
+                    if row['permissible_value'] in synlist:
+                        query_pv = row['permissible_value']
+                        temp_df = to_df.query('permissible_value == @query_pv')
+                        for temp_index, temp_row in temp_df.iterrows():
+                            mapped_pv_df.loc[len(mapped_pv_df)] = {'lift_from_node':row['node_name'],
+                                                                    'lift_from_prop': row['property_name'],
+                                                                    'lift_from_cdeID': row['cde_id'],
+                                                                    'lift_from_cdeVersion': row['cde_version'],
+                                                                    'lift_from_pv': row['permissible_value'],
+                                                                    'lift_from_conceptCode': row['concept_code'],
+                                                                    'lift_from_model': lift_from_model.model.handle,
+                                                                    'lift_from_version': lift_from_model.model.version,
+                                                                    'lift_to_node': temp_row['node_name'],
+                                                                    'lift_to_prop': temp_row['property_name'],
+                                                                    'lift_to_cdeID': temp_row['cde_id'],
+                                                                    'lift_to_cdeVersion': temp_row['cde_version'],
+                                                                    'lift_to_pv': temp_row['permissible_value'],
+                                                                    'lift_to_conceptCode': temp_row['concept_code'],
+                                                                    'lift_to_model': lift_to_model.handle,
+                                                                    'lift_to_version': lift_to_model.version,
+                                                                    'mapping_type': 'Synonym Mapping'}
     return mapped_pv_df
 
 
@@ -442,11 +620,19 @@ def main(args):
     lift_from_model = bento_mdf.MDF(*configs['lift_from_model_files'])
     lift_to_model = bento_mdf.MDF(*configs['lift_to_model_files'])
     
-    lift_from_dict = CDEDictionary(lift_from_model.model.props)
-    lift_to_dict = CDEDictionary(lift_to_model.model.props)
+    #lift_from_dict = CDEDictionary(lift_from_model.model.props)
+    #lift_to_dict = CDEDictionary(lift_to_model.model.props)
     
-    lift_from_cdeinfo = CDEInfo(lift_from_model)
-    lift_to_cdeinfo = CDEInfo(lift_to_model)
+    lift_from_dict_df = CDEDataFrame(lift_from_model.model.props)
+    lift_to_dict_df = CDEDataFrame(lift_to_model.model.props)
+    
+    #print("Lift_to_dict Values:\n")
+    #for key, values in lift_to_dict.items():
+    #    for value in values:
+    #        print(f"{value}")
+    
+    #lift_from_cdeinfo = CDEInfo(lift_from_model)
+    #lift_to_cdeinfo = CDEInfo(lift_to_model)
     
     
     #
@@ -457,35 +643,53 @@ def main(args):
     if args.verbose:
         print("Starting Property CDE based mapping")
     
-    # Always doing CDE based Property mapping
-    #mapped_df = doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, lift_to_cdeinfo, lift_to_cdeinfo, mapped_df, args.verbose)
+    # Do CDE based Property mapping if requested
+    if configs['cde_mapping']:
+        if args.verbose:
+            print("Starting CDE Mapping")
+        #mapped_df = doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, lift_to_cdeinfo, lift_to_cdeinfo, mapped_df, args.verbose)
+        #mapped_df = doCDEPropertyMapping(lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, lift_from_cdeinfo, lift_to_cdeinfo, mapped_df, False)
+        mapped_df = doCDEPropertyMapping2(lift_from_dict_df, lift_to_dict_df, mapped_df, lift_from_model, lift_to_model, args.verbose)
+
     
     # Do String based Property mapping if requested
     if configs['string_match_mapping']:
         if args.verbose:
             print("Starting Property string-based mapping")
-        #if configs['cde_only_mapping'] is not None:
-        #    # Print out the results of the CDE based mapping just in case
-        #    mapped_df.to_csv(configs['cde_only_mapping'], sep="\t", index=False)
         #mapped_df = doStringPropertyMapping(lift_from_model, lift_to_model, mapped_df, args.verbose)
+        #mapped_df = doStringPropertyMapping(lift_from_model, lift_to_model, mapped_df, False)
+        mapped_df = doStringPropertyMapping2(lift_from_dict_df, lift_to_dict_df, mapped_df, lift_from_model, lift_to_model, args.verbose)
+    
+    # Done with property mapping, print the file
+    if args.verbose:
+        print("Print CDE/String Mapping File")
+    mapped_df.to_csv(configs['mapping_file'], sep="\t", index=False)
         
     #
     #    Value mapping
     #   
-    if args.verbose:
-        print("Starting Value mapping")
-    if configs['value_map_file'] is not None:
-        mapped_pv_df = doConceptCodeValueMapping(lift_from_cdeinfo, lift_to_cdeinfo, lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, mapped_pv_df, args.verbose)
+    if configs['value_map_file'] != 'None':
+        #print(f"value_map_file is: {configs['value_map_file']}")
+        # Add PVs and concept codes to the existing from and to_from_dict_df
+        lift_from_dict_df = conceptCodifier(lift_from_dict_df)
+        lift_to_dict_df = conceptCodifier(lift_to_dict_df)
+        #print(lift_from_dict_df)
+        if args.verbose:
+            print("Starting Value mapping")
+        #mapped_pv_df = doConceptCodeValueMapping(lift_from_cdeinfo, lift_to_cdeinfo, lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, mapped_pv_df, args.verbose)
+        #mapped_pv_df = doConceptCodeValueMapping(lift_from_cdeinfo, lift_to_cdeinfo, lift_from_model, lift_to_model, lift_from_dict, lift_to_dict, mapped_pv_df, False)
+        mapped_pv_df = doConceptCodeValueMapping2(lift_from_dict_df, lift_from_dict_df, lift_from_model, lift_to_model, mapped_pv_df, args.verbose)
         # Do synonym if requested
-        mapped_pv_df = doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, args.verbose)
+        if configs['synonym_mapping']:
+            if args.verbose:
+                print("Starting synonym mapping")
+            #mapped_pv_df = doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, args.verbose)
+            #mapped_pv_df = doSynonymValueMapping(lift_from_model, lift_to_model, mapped_pv_df, False)
         
-        
-    #
-    # Print the files
-    #    
-    mapped_df.to_csv(configs['mapping_file'], sep="\t", index=False)
-    
-    if configs['value_map_file'] is not None:
+            
+    if configs['value_map_file'] != 'None':
+        if args.verbose:
+            print("Printing Value Mapping file")
         mapped_pv_df.to_csv(configs['value_map_file'], sep="\t", index=False)
    
 
