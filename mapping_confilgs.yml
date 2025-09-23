@@ -13,10 +13,11 @@ cde_mapping: True
 reverse_mapping: False
  #The option below is used if you are doing both string and CDE matching and want a CDE only file as well.
 # To emable this, replace None with the full path and filename of the CDE only mapping results
-cde_only_mapping: None
+# DEPRECATED
+#cde_only_mapping: None
 # Value mapping will be done if there is a file name here.  Use None to turn off
 #value_map_file: None 
-value_map_file: './value_mapping.tsv'
+value_map_file: './Synonym_value_mapping.tsv'
 # Synonym mapping will be done as part of value mapping if requested. True turns on synonym mapping
-#synonym_mapping: True
-synonym_mapping: False
+synonym_mapping: True
+#synonym_mapping: False
