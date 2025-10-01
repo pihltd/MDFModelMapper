@@ -71,13 +71,17 @@ def mismatchCheck(mapfile, verbose):
         print(f"Reading {mapfile}")
     mapped_df = pd.read_csv(mapfile, sep="\t")
     for index, row in mapped_df.iterrows():
-        print(row)
+        if verbose >=3:
+            print(row)
         if row['lift_from_prop'] != row['lift_to_prop']:
             mismatch_df= addRow(mismatch_df, row, 'Property Name Mismatch')
         elif row['lift_from_node'] != row['lift_to_node']:
             mismatch_df = addRow(mismatch_df, row, 'Node Mismatch')
         elif row['lift_from_cdeID'] != row['lift_to_cdeID']:
-            if not np.isnan(row['lift_from_cdeID']):
+            if verbose >=3:
+                print(f"Isnan check on {row['lift_from_cdeID']}")
+            if row['lift_from_cdeID'] is not np.nan:
+            #if not np.isnan(row['lift_from_cdeID']):
                 mismatch_df = addRow(mismatch_df, row, 'CDE ID mismatch')
     return mismatch_df
             

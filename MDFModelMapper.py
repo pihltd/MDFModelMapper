@@ -7,27 +7,32 @@ import requests
 
 
 def stsPVQuery(id, version, model=False, verbose=0):
-    if verbose >= 2:
-        print(f"stsPVQuery for ID: {id} and version {version}")
-    
-    if model:
-        url = f"https://sts-dev.cancer.gov/v1/terms/model-pvs/{id}/{version}/pvs"
-    else:
-        url = f"https://sts.cancer.gov/v1/terms/cde-pvs/{id}/{version}/pvs"
-    headers = {'accept': 'application/json'}
-    
-    if verbose >= 2:
-        print(f"URL: {url}")
-    try:
-        result = requests.get(url = url, headers = headers)
-
-        if result.status_code == 200:
-            return result.json()
+    if id is not np.nan:
+        if verbose >= 2:
+            print(f"stsPVQuery for ID: {id} and version {version}")
+            print(f"ID Type: {type(id)}\tVersion type: {type(version)}")
+        
+        if model:
+            url = f"https://sts-dev.cancer.gov/v1/terms/model-pvs/{id}/{version}/pvs"
         else:
-            print(f"Error: {result.status_code}\n{result.content}")
+            url = f"https://sts.cancer.gov/v1/terms/cde-pvs/{id}/{version}/pvs"
+        headers = {'accept': 'application/json'}
+        
+        if verbose >= 2:
+            print(f"URL: {url}")
+        try:
+            result = requests.get(url = url, headers = headers)
+
+            if result.status_code == 200:
+                return result.json()
+            else:
+                print(f"Error: {result.status_code}\n{result.content}")
+                return None
+        except requests.exceptions.HTTPError as e:
+            print("HTTP Error: {e}")
             return None
-    except requests.exceptions.HTTPError as e:
-        print("HTTP Error: {e}")
+    else:
+        print("ID provided is np.nan")
         return None
 
 
@@ -72,24 +77,27 @@ def CDEDataFrame(props, verbose = 0):
 
 def PVDictionary(cdeid, cdeversion,  verbose=0):
     #Returns a dictionary of {concept code: PV term}.
-    if verbose >= 2:
-        print(f"PVDictionary for CDE ID {cdeid} and version {cdeversion}")
-    final = {}
-    #synonyms = {}
-    cdejson = stsPVQuery(cdeid, cdeversion, False, verbose)
-    if verbose >= 3:
-        print(cdejson)
-    # If multiple models have different names for a CDE it might come back as a list
-    if cdejson is not None:
-        if type(cdejson['CDECode']) is list:
-            if len(cdejson['permissibleValues'][0]) > 0:
-                for pv in cdejson['permissibleValues'][0]:
+    if cdeid is not np.nan:
+        if verbose >= 2:
+            print(f"PVDictionary for CDE ID {cdeid} and version {cdeversion}")
+        final = {}
+        #synonyms = {}
+        cdejson = stsPVQuery(cdeid, cdeversion, False, verbose)
+        if verbose >= 3:
+            print(cdejson)
+        # If multiple models have different names for a CDE it might come back as a list
+        if cdejson is not None:
+            if type(cdejson['CDECode']) is list:
+                if len(cdejson['permissibleValues'][0]) > 0:
+                    for pv in cdejson['permissibleValues'][0]:
+                        final[pv['ncit_concept_code']] = pv['value']
+                else:
+                    final = None
+            elif len(cdejson['permissibleValues']) > 0:
+                for pv in cdejson['permissibleValues']:
                     final[pv['ncit_concept_code']] = pv['value']
             else:
                 final = None
-        elif len(cdejson['permissibleValues']) > 0:
-            for pv in cdejson['permissibleValues']:
-                final[pv['ncit_concept_code']] = pv['value']
         else:
             final = None
     else:
@@ -393,8 +401,12 @@ def main(args):
     
     mapped_df = pd.DataFrame(columns=mapped_df_headers)
     mapped_pv_df = pd.DataFrame(columns=pv_df_mapping_headers)
-    
+
+    if args.verbose >=2:
+        print(f" Getting {configs['lift_from_model_files']}")
     lift_from_model = bento_mdf.MDF(*configs['lift_from_model_files'])
+    if args.verbose >=2:
+        print(f" Getting {configs['lift_to_model_files']}")
     lift_to_model = bento_mdf.MDF(*configs['lift_to_model_files'])
       
     lift_from_df = CDEDataFrame(lift_from_model.model.props)
