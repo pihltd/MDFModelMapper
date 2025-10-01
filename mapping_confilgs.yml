@@ -1,23 +1,41 @@
+#
+# List the model files here.  Can be local or URLs
+#
 lift_from_model_files:
-  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
-  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
-lift_to_model_files:
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
+  #- 'C:\Users\pihltd\Downloads\cds-model-9.0.1.yml'
+  #- 'C:\Users\pihltd\Downloads\cds-model-props-9.0.1.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.0/model-desc/cds-model.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.0/model-desc/cds-model-props.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/icdc-model-tool/refs/heads/master/model-desc/icdc-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/icdc-model-tool/refs/heads/master/model-desc/icdc-model-props.yml'
+lift_to_model_files:  
+  #- 'C:\Users\pihltd\Downloads\cds-model-10.0.0.yml'
+  #- 'C:\Users\pihltd\Downloads\cds-model-props-10.0.0.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
+#
+# Select the types of mappings to be done
+cde_mapping: True
+string_match_mapping: True
+value_mapping: True
+synonym_mapping: True
+#
+#  Set to True if you want a report file generated
+mapping_report: True
+unmapped_report: True
+#
+# If autoname is set to true, filenames are not required, but a save path is. 
+# Use a trailing slash (\ or /) on the save path
+autoname: True
+#
+# Enter the path to save files to.  Use a trailing slash (\ or /) on the save path
+savepath: 'C:\Users\pihltd\Documents\MappingExp\'
+#
+# If autoname is set to False, filenames are requried. 
 #mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
 mapping_file: './mapped.tsv'
-string_match_mapping: True
-cde_mapping: True
-reverse_mapping: False
- #The option below is used if you are doing both string and CDE matching and want a CDE only file as well.
-# To emable this, replace None with the full path and filename of the CDE only mapping results
-# DEPRECATED
-#cde_only_mapping: None
-# Value mapping will be done if there is a file name here.  Use None to turn off
+# Value mapping will be done if there is a file name here.
 #value_map_file: None 
 value_map_file: './Synonym_value_mapping.tsv'
-# Synonym mapping will be done as part of value mapping if requested. True turns on synonym mapping
-synonym_mapping: True
-#synonym_mapping: False
