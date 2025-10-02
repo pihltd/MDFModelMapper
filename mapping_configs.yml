@@ -39,4 +39,5 @@ savepath: '/media/sf_VMShare/ModelMapping/'
 mapping_file: './mapped.tsv'
 # Value mapping will be done if there is a file name here.
 #value_map_file: None 
-value_map_file: './Synonym_value_mapping.tsv'
+value_map_file: 'Synonym_value_mapping.tsv'
+mapping_mismatch_file: 'Mismatch_mapping.tsv'
