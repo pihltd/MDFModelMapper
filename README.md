@@ -2,7 +2,7 @@
 A Collection of scripts that map between models and (hopefully) create a useful liftover file.  The input models must be in MDF format.  All output files are tab-separated text files.
 
 ## MDFModelMapper
-**Usage**: python MDFModelMapper.py -c <configfile> -v <verbose> -h <help>\
+**Usage**: python MDFModelMapper.py -c \<configfile\> -v \<verbose\> -h \<help\>\
 -c: (Required) A valid path to the configuration file\ 
 -v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
 -h: (Optional) Display help information\
