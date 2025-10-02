@@ -2,10 +2,11 @@
 A Collection of scripts that map between models and (hopefully) create a useful liftover file.  The input models must be in MDF format.  All output files are tab-separated text files.
 
 ## MDFModelMapper
-**Usage**: python MDFModelMapper.py -c <configfile> -v <verbose> -h <help>
--c: (Required) A valid path to the configuration file 
--v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)
--h: (Optional) Display help information 
+**Usage**: python MDFModelMapper.py -c <configfile> -v <verbose> -h <help>\
+-c: (Required) A valid path to the configuration file\ 
+-v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
+-h: (Optional) Display help information\
+
 Takes a YAML config file as input (see *mapping_configs.yml*) and can map with several different options
 
 - CDE Mapping - Compares CDE IDs between model properties
@@ -16,10 +17,10 @@ Takes a YAML config file as input (see *mapping_configs.yml*) and can map with s
 Output is a tab-delimited file
 
 ## MDFMappingAnalysis
-**Usage**: python MDFMappingAnalysis.py -c <configfile> -v <verbose> -h <help>
--c: (Required) A valid path to the configuration file 
--v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)
--h: (Optional) Display help information 
+**Usage**: python MDFMappingAnalysis.py -c <configfile> -v <verbose> -h <help>\
+-c: (Required) A valid path to the configuration file\ 
+-v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
+-h: (Optional) Display help information\ 
 
 Uses the output from *MDFModelMapper* and the same YAML configuration file as *MDFModelMapper* and looks for mapping mismatches:
 - Node Mismatch:  The property maps to a different node.  This can be due to legitimate model changes or to use of the same CDE/property name in multiple nodes.
@@ -28,10 +29,10 @@ Uses the output from *MDFModelMapper* and the same YAML configuration file as *M
 
 
 ## MismatchDematchifyer
-**Usage**: python MismatchDematchifyer.py -c <configfile> -v <verbose> -h <help>
--c: (Required) A valid path to the configuration file 
--v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)
--h: (Optional) Display help information 
+**Usage**: python MismatchDematchifyer.py -c <configfile> -v <verbose> -h <help>\
+-c: (Required) A valid path to the configuration file\ 
+-v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
+-h: (Optional) Display help information\ 
 
 Takes a YAML config file (see *mismatchremoval_config.yml*) adn will use the outputs of *MDFModelMapper* and *MDFMappingAnalysis* to remove incorrect mismatchs from the mapping file.  It is **STRONGLY** recommended that the output from *MDFMappingAnalysis* is edited first to remove any lines that are actually correct mappings.  Each remaning line in the output from *MDFMappingAnalysis* will be removed from the output of *MDFModelMapper*.
 
