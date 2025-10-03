@@ -17,7 +17,7 @@ Takes a YAML config file as input (see *mapping_configs.yml*) and can map with s
 Output is a tab-delimited file
 
 ## MDFMappingAnalysis
-**Usage**: python MDFMappingAnalysis.py -c <configfile> -v <verbose> -h <help>\
+**Usage**: python MDFMappingAnalysis.py -c \<configfile\> -v \<verbose\> -h \<help\>\
 -c: (Required) A valid path to the configuration file\ 
 -v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
 -h: (Optional) Display help information\ 
@@ -29,7 +29,7 @@ Uses the output from *MDFModelMapper* and the same YAML configuration file as *M
 
 
 ## MismatchDematchifyer
-**Usage**: python MismatchDematchifyer.py -c <configfile> -v <verbose> -h <help>\
+**Usage**: python MismatchDematchifyer.py -c \<configfile\> -v \<verbose\> -h \<help\>\
 -c: (Required) A valid path to the configuration file\ 
 -v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
 -h: (Optional) Display help information\ 
@@ -40,12 +40,12 @@ Takes a YAML config file (see *mismatchremoval_config.yml*) adn will use the out
 
 # YAML configurations
 ## MDFModelMapper, MDFMappingAnalysis
-- *lift_from_model_files*: A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the source for mapping.
-- *lift_from_to_files*: A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the target for mapping.
-- *cde_mapping*: A Boolean value.  True enables CDE ID property mapping, False prevents CDE ID property mapping.
-- *string_match_mapping*: A Boolean value.  True enables string-based property mapping, False prevents string-based property mapping.
-- *value_mapping*: A Boolean value.  True enables permissible value mapping by concept code, False prevents PV mapping.
-- *synonym_mapping*: A Boolean value.  True enables permissible value mapping by synonyms, False prevents synonym PV mapping.
+- *lift_from_model_files*: List of String.  A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the source for mapping.
+- *lift_from_to_files*: List of String. A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the target for mapping.
+- *cde_mapping*: Boolean.  True enables CDE ID property mapping, False prevents CDE ID property mapping.
+- *string_match_mapping*: Boolean.  True enables string-based property mapping, False prevents string-based property mapping.
+- *value_mapping*: Boolean.  True enables permissible value mapping by concept code, False prevents PV mapping.
+- *synonym_mapping*: Boolean.  True enables permissible value mapping by synonyms, False prevents synonym PV mapping.
 - *mapping_report*: Boolean.  If True, a mapping report will be saved.
 - *unmapped_report*: Boolean.  If True, the unmapped property report will be saved.
 - *autoname*: Boolean.  If True, files will be automaticallly named using source and target model names and version.
