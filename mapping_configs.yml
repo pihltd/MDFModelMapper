@@ -6,10 +6,13 @@ lift_from_model_files:
   #- 'C:\Users\pihltd\Downloads\cds-model-props-9.0.1.yml'
   #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model.yml'
   #- 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/9.0.1/model-desc/cds-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  #- 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
   #- 'https://raw.githubusercontent.com/CBIIT/icdc-model-tool/refs/heads/master/model-desc/icdc-model.yml'
   #- 'https://raw.githubusercontent.com/CBIIT/icdc-model-tool/refs/heads/master/model-desc/icdc-model-props.yml'
+  - '/media/sf_VMShare/CIDH/CIDC_model.yml'
+  - '/media/sf_VMShare/CIDH/CIDC_model_properties.yml'
+  - '/media/sf_VMShare/CIDH/CIDC_model_terms.yml'
 lift_to_model_files:  
   #- 'C:\Users\pihltd\Downloads\cds-model-10.0.0.yml'
   #- 'C:\Users\pihltd\Downloads\cds-model-props-10.0.0.yml'
@@ -32,7 +35,8 @@ autoname: True
 #
 # Enter the path to save files to.  Use a trailing slash (\ or /) on the save path
 #savepath: 'C:\Users\pihltd\Documents\MappingExp\'
-savepath: '/media/sf_VMShare/ModelMapping/'
+#savepath: '/media/sf_VMShare/ModelMapping/'
+savepath: '/media/sf_VMShare/CIDH/'
 #
 # If autoname is set to False, filenames are requried. 
 #mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
