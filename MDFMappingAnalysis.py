@@ -93,7 +93,7 @@ def main(args):
     lift_to_model = bento_mdf.MDF(*configs['lift_to_model_files'])
 
     
-    if args.autoname:
+    if configs['autoname']:
     # If autoname is True,  use the standard way MDFModelMapper creates files
         propmapfilename = f"{lift_from_model.model.handle}_{lift_from_model.model.version}-{lift_to_model.model.handle}_{lift_to_model.model.version}.tsv"
         reportfile = f"{lift_from_model.model.handle}_{lift_from_model.model.version}-{lift_to_model.model.handle}_{lift_to_model.model.version}_MISMATCH_REPORT.tsv"

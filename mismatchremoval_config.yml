@@ -1,5 +1,5 @@
 filepath: '/media/sf_VMShare/ModelMapping/'
-mappingfile: 'CDS_v9.0.0-CDS_v10.0.0.tsv'
+#mappingfile: 'CDS_v9.0.0-CDS_v10.0.0.tsv'
 #mismatchfile: 'CDS_v9.0.0-CDS_v10.0.0_MISMATCH_REPORT.tsv'
-mismatchfile: 'CDS_v9.0.0-CDS_v10.0.0_Cleanup.csv'
-savefile: 'CDS_v9.0.0-CDS_v10.0.0_DEMISMATCHED.tsv'
+#mismatchfile: 'CDS_v9.0.0-CDS_v10.0.0_Cleanup.csv'
+#savefile: 'CDS_v9.0.0-CDS_v10.0.0_DEMISMATCHED.tsv'

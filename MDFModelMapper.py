@@ -53,7 +53,10 @@ def getCDEID(props, prop, verbose= 0):
                 print(f"Starting object: {workingtermobj}")
                 print(f"Prop: {prop}\t\tWorkingterm:\n{workingterm}")
                 print(f"geCDEID InfoL  Prop: {prop[1]}\tNode: {prop[0]}\tCDE: {workingterm['origin_id']}\t Ver: {workingterm['origin_version']}")
-            return workingterm['origin_id'], workingterm['origin_version']
+            if 'origin_version' in workingterm:
+                return workingterm['origin_id'], workingterm['origin_version']
+            else:
+                return workingterm['origin_id'], None
     else:
         return None, None
 
@@ -64,7 +67,7 @@ def CDEDataFrame(props, verbose = 0):
     final_df = pd.DataFrame(columns=columns)
     for prop in props:
         if props[prop].concept is not None:
-            cdeid, cdeversion = getCDEID(props, prop)
+            cdeid, cdeversion = getCDEID(props, prop, verbose)
             final_df.loc[len(final_df)] = {"cde_id": cdeid, "cde_version":cdeversion, "property_name": prop[1], "node_name": prop[0]}
             cdeid = np.nan
             cdeversion = np.nan
@@ -402,15 +405,19 @@ def main(args):
     mapped_df = pd.DataFrame(columns=mapped_df_headers)
     mapped_pv_df = pd.DataFrame(columns=pv_df_mapping_headers)
 
-    if args.verbose >=2:
+    if args.verbose >= 2:
         print(f" Getting {configs['lift_from_model_files']}")
     lift_from_model = bento_mdf.MDF(*configs['lift_from_model_files'])
-    if args.verbose >=2:
+    if args.verbose >= 2:
         print(f" Getting {configs['lift_to_model_files']}")
     lift_to_model = bento_mdf.MDF(*configs['lift_to_model_files'])
-      
-    lift_from_df = CDEDataFrame(lift_from_model.model.props)
-    lift_to_df = CDEDataFrame(lift_to_model.model.props)
+    
+    if args.verbose >= 2:
+        print(f"Creating lift_from_df")
+    lift_from_df = CDEDataFrame(lift_from_model.model.props, args.verbose)
+    if args.verbose >= 2:
+        print(f"Creating lift_to_df")
+    lift_to_df = CDEDataFrame(lift_to_model.model.props, args.verbose)
     
     if args.verbose >= 1:
         print(f"From {lift_from_model.model.handle} version {lift_from_model.model.version} To {lift_to_model.model.handle} version {lift_to_model.model.version}")
