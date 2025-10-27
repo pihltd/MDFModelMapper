@@ -1,0 +1,8 @@
+Merge:
+ - 'From':
+   - participant: study.study_id
+   - participant: participant_id
+   'To': 
+     participant: study_participant_id
+   'Method': "_"
+    

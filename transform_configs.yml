@@ -1,0 +1,11 @@
+lift_from_model_files:
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+lift_to_model_files:  
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
+value_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0_ValueMapping.tsv'
+property_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
+complex_mapping_file: './CCDI-TestMappingFormat.yml' 
+ccdi_excel: '/media/sf_VMShare/CCDI/phs003519_CCDI_Study_Manifest 1.xlsx'
+outputdir: '/media/sf_VMShare/CCDI/'
