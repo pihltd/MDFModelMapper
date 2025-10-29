@@ -1,0 +1,18 @@
+mdffiles:
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
+sourcefiles:
+  - diagnosis: '/media/vmshare/CCDI/csv/diagnosis_CCDI.csv'
+  - participant: '/media/vmshare/CCDI/csv/participant_CCDI.csv'
+  - publication: '/media/vmshare/CCDI/csv/publication_CCDI.csv'
+  - sample: '/media/vmshare/CCDI/csv/sample_CCDI.csv'
+  - sequencing_file: '/media/vmshare/CCDI/csv/sequencing_file_CCDI.csv'
+  - study_admin: '/media/vmshare/CCDI/csv/study_admin_CCDI.csv'
+  - study_arm: '/media/vmshare/CCDI/csv/study_arm_CCDI.csv'
+  - study: '/media/vmshare/CCDI/csv/study_CCDI.csv'
+  - study_funding: '/media/vmshare/CCDI/csv/study_funding_CCDI.csv'
+  - study_personnel: '/media/vmshare/CCDI/csv/study_personnel_CCDI.csv'
+manualedges:
+  - study:participant
+dataload: True
+edges: True
