@@ -13,6 +13,7 @@ sourcefiles:
   - study_funding: '/media/vmshare/CCDI/csv/study_funding_CCDI.csv'
   - study_personnel: '/media/vmshare/CCDI/csv/study_personnel_CCDI.csv'
 manualedges:
-  - study:participant
+  #- src: dst
+  - participant: study
 dataload: True
 edges: True

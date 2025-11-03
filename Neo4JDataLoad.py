@@ -83,19 +83,27 @@ def buildLoadCSVQuery(node, filename, mdf):
     return returnstring
 
 
-def buildRelationshipQuery(node, mdf):
+def buildRelationshipQuery(src, mdf, dst=None):
     edgequery = None
-    edgelist = mdf.model.edges_by_src(mdf.model.nodes[node])
+    if dst is not None:
+        edgelist = [dst]
+    else:
+        edgelist = mdf.model.edges_by_src(mdf.model.nodes[src])
     for edge in edgelist:
             #need the key property from the dst node
-            keyproplist = getKeyProp(edge.dst.handle, mdf)
+            if dst is not None:
+                keyproplist = getKeyProp(dst, mdf)
+                print(f"DST key prop: {keyproplist}")
+            else:
+                keyproplist = getKeyProp(edge.dst.handle, mdf)
             if len(keyproplist) == 1:
                 keyprop = keyproplist[0]
-                dst = edge.dst.handle
-                edgequery = f"MATCH ({node.lower()}:{node.upper()}), ({dst.lower()}:{dst.upper()})"
-                wherestring = f" WHERE {node.lower()}.`{dst.lower()}.{keyprop.lower()}` = {dst.lower()}.{keyprop.lower()}"
+                if dst is None:
+                    dst = edge.dst.handle
+                edgequery = f"MATCH ({src.lower()}:{src.upper()}), ({dst.lower()}:{dst.upper()})"
+                wherestring = f" WHERE {src.lower()}.`{dst.lower()}.{keyprop.lower()}` = {dst.lower()}.{keyprop.lower()}"
                 edgequery = edgequery+wherestring
-                createstring = f" CREATE ({node.lower()})-[:OF_{node.upper()}]->({dst.lower()})"
+                createstring = f" CREATE ({src.lower()})-[:OF_{src.upper()}]->({dst.lower()})"
                 edgequery = edgequery+createstring
     return edgequery
 
@@ -106,12 +114,18 @@ def main(args):
         print(f"Reading configs from {args.configfile}")
     configs = crdclib.readYAML(args.configfile)
 
+    if args.verbose >= 1:
+        print("Creating MDF object")
     mdf = bento_mdf.MDF(*configs['mdffiles'])
 
+    if args.verbose >= 1:
+        print("Creating neo4j connection")
     conn = Neo4jConnection(os.getenv('NEO4J_URI'), os.getenv('NEO4J_USERNAME'), os.getenv('NEO4J_PASSWORD'))
 
+    filelist = configs['sourcefiles']
     if configs['dataload']:
-        filelist = configs['sourcefiles']
+        if args.verbose >= 1:
+            print("Starting data load")
         for entry in filelist:
             node = list(entry.keys())[0]
             filename = list(entry.values())[0]
@@ -124,13 +138,24 @@ def main(args):
 
     # Yes, this looks weird, but the data has to be loaded first before edges can be added
     if configs['edges']:
+        if args.verbose >= 1:
+            print("Starting relationship addition")
         for entry in filelist:
             node = list(entry.keys())[0]
-            edgequery = buildRelationshipQuery(node, mdf)
+            edgequery = buildRelationshipQuery(src=node, mdf=mdf)
             if edgequery is not None:
-                if args.verbos >=2:
+                if args.verbose >=2:
                     print(edgequery)
-                conn.query(query=query, db='neo4j')
+                conn.query(query=edgequery, db='neo4j')
+        manualedges = configs['manualedges']
+        for manualedge in manualedges:
+            edgequery = buildRelationshipQuery(src=list(manualedge.keys())[0], dst=list(manualedge.values())[0], mdf=mdf)
+            if edgequery is not None:
+                if args.verbose >= 2:
+                    print(edgequery)
+                conn.query(query=edgequery, db='neo4j')
+            else:
+                print("Edgequery is none")
         
         
 
