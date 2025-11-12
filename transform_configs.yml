@@ -4,8 +4,10 @@ lift_from_model_files:
 lift_to_model_files:  
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
-value_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0_ValueMapping.tsv'
-property_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
+#value_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0_ValueMapping.tsv'
+value_mapping_file: '/media/vmshare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0_ValueMapping.tsv'
+#property_mapping_file: '/media/sf_VMShare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
+property_mapping_file: '/media/vmshare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
 complex_mapping_file: './CCDI-TestMappingFormat.yml' 
 #ccdi_excel: '/media/sf_VMShare/CCDI/phs003519_CCDI_Study_Manifest 1.xlsx'
 ccdi_excel: '/media/vmshare/CCDI/phs003519_CCDI_Study_Manifest 1.xlsx'

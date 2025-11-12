@@ -11,6 +11,9 @@ from crdclib import crdclib
 # https://prvnk10.medium.com/mastering-the-create-clause-in-neo4j-a-beginners-guide-to-node-creation-7f9ecc6d0ee5
 
 class Neo4jConnection:
+    # The Neo4jConnection class written by CJ Sullivan and publishe on Medium.com
+    # https://medium.com/data-science/create-a-graph-database-in-neo4j-using-python-4172d40f89c4
+
     def __init__(self, uri, user, pwd):
         self.__uri = uri
         self.__user = user

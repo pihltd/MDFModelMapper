@@ -4,9 +4,19 @@ lift_from_model_files:
 lift_to_model_files:  
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
-transform_file: '/media/vmshare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
+#transform_file: '/media/vmshare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0.tsv'
+transform_file: '/media/vmshare/ModelMapping/CCDI_v3.1.0-CDS_v10.0.0_CURATED.tsv'
 outputdir: '/home/pihl/temp/'
-makefiles: False
-loadfiles: False
+makefiles: True
+loadfiles: True
 makeedges: False
-modeledges: True
+modeledges: False
+compound_keys:
+  - participant: 
+      study_participant_id:
+        - participant: 'study.study_id'
+        - participant: participant_id
+  - image:
+      study_link_id: UUID
+  - genomic_info:
+      genomic_info_id: UUID

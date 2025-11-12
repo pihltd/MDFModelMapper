@@ -4,9 +4,15 @@ import pandas as pd
 import argparse
 import os
 from crdclib import crdclib
+import sys
+import logging
+import uuid
+sys.path.insert(1,'../CRDCTransformationLibrary/src')
+import mdfTools
+import Neo4JConnection as njc
 
 
-class Neo4jConnection:
+'''class Neo4jConnection:
     def __init__(self, uri, user, pwd):
         self.__uri = uri
         self.__user = user
@@ -35,7 +41,7 @@ class Neo4jConnection:
         finally:
             if session is not None:
                 session.close()
-        return response
+        return response'''
 
 
 
@@ -43,27 +49,6 @@ def  buildNodeQuery(fromnode, verbose = 0):
     # Queries the database for all fromnodes including all properties and element ID
     return f"MATCH ({fromnode.lower()}:{fromnode.upper()}) WITH *, elementID({fromnode.lower()}) AS elid RETURN {fromnode.lower()},elid"
 
-
-'''def buildNewNodeQuery(newmapping, conn, verbose=0):
-    #print(f"In buildNewNodeQuery with verbosity {str(verbose)}")
-    #print(newmapping)
-    for nodename, nodelist in newmapping.items():
-        if verbose >= 2:
-            print(f"Bulding new node for {nodename}")
-        propstring = ""
-        for singlenodelist in nodelist:
-            for node in singlenodelist:
-                for property, value in node.items():
-                    if propstring == "":
-                        propstring = propstring + f" {property.strip("'")}: '{value}'"
-                    else:
-                         propstring = propstring + f", {property.strip("'")}: '{value}'"
-                    nnl = nodename.lower()
-                    nnu = nodename.upper()
-            query = f"CREATE ({nnl}:{nnu} {{{propstring}}})"
-            if verbose >= 2:
-                print(f"Sending query:\n{query}")
-            conn.query(query=query, db='neo4j')'''
 
 def buildPropList(property, value, node_df, proplistmap, verbose=0):
     # Check to see if the property has been mapped
@@ -125,6 +110,19 @@ def addOfTransformRelationships(src, conn, verbose=0):
 
 
 
+def manualAddTransformRelationships(src, dst, conn, verbose=0):
+    keypropsrc = 'parent_elementId'
+    edgequery = f"MATCH ({src.lower()}:{src.upper()}), ({dst.lower()}:{dst.upper()})"
+    wherestring = f" WHERE elementid({src.lower()}) = {dst.lower()}.{keypropsrc}"
+    edgequery = edgequery+wherestring
+    createstring = f" CREATE ({src.lower()})-[:OF_TRANSFORMATION]->({dst.lower()})"
+    edgequery = edgequery+createstring
+    if verbose >= 2:
+        print(f"Relationship query:\n{edgequery}")
+    conn.query(query=edgequery, db='neo4j')
+
+
+
 def printTransformedFiles(newmapping, outputdir, verbose=0):
     nodefilelist = {}
     for nodename, nodelist in newmapping.items():
@@ -150,7 +148,7 @@ def printTransformedFiles(newmapping, outputdir, verbose=0):
 
 def buildLoadCSVQuery(node, filename, verbose=0):
     returnstring = None
-    startstring = f"LOAD CSV WITH HEADERS FROM 'file:///{os.path.basename(filename)}' AS row FIELDTERMINATOR \"\t\""
+    startstring = f"LOAD CSV WITH HEADERS FROM 'file:///{os.path.basename(filename)}' AS row FIELDTERMINATOR '\t'"
     # Need key property for node
     keyprop = 'parent_elementId'
     mergestring = f" MERGE ({node.lower()}:{node.upper()} {{{keyprop}:row.{keyprop}}})"
@@ -193,7 +191,6 @@ def buildRelationshipQuery(src, mdf, dst=None, verbose=0):
             #need the key property from the dst node
             if dst is not None:
                 keyproplist = getKeyProp(dst, mdf)
-                print(f"DST key prop: {keyproplist}")
             else:
                 keyproplist = getKeyProp(edge.dst.handle, mdf)
             if len(keyproplist) == 1:
@@ -212,9 +209,48 @@ def buildRelationshipQuery(src, mdf, dst=None, verbose=0):
 
 
 
+def addCompoundKeys(compoundKeyList, conn, verbose=0):
+    delimiter = "_"
+    
+    for entry in compoundKeyList:
+        for targetnode, propstuff in entry.items():
+            print(f"Target Node: {targetnode}\nPropstuff: {propstuff}")
+            tnquery = f"MATCH (t:LIFT_TO_{targetnode.upper()}) RETURN t"
+            tnresult = conn.query(query=tnquery, db='neo4j')
+            for result in tnresult:
+                pid = result.data()['t']['parent_elementId']
+                # This query will return the original node the transform was pulled from
+                # NEED a safety valve here, not every target node will have an OF_TRANSFORMATION relationship
+                nodelist = []
+                testquery = "MATCH (n) RETURN distinct labels(n)"
+                testres = conn.query(query=testquery, db='neo4j')
+                for entry in testres:
+                    #print(entry.data()['labels(n)'][0])
+                    nodelist.append(entry.data()['labels(n)'][0])
+                
+                if targetnode.upper() in nodelist:
+                    relquery = f"MATCH (l:LIFT_TO_{targetnode.upper()})-[:OF_TRANSFORMATION]-(p:{targetnode.upper()}) WHERE l.parent_elementId = '{pid}' RETURN p"
+                    relres = conn.query(query=relquery, db='neo4j')
+                    for targetprop, sourcelist in propstuff.items():
+                        keystring = None
+                        if sourcelist == 'UUID':
+                            keystring = uuid.uuid4()
+                        else:
+                            for each in sourcelist:
+                                for sourcenode, sourceprop in each.items():
+                                    if sourceprop in relres[0].data()['p']:
+                                        if keystring is None:
+                                            keystring = relres[0].data()['p'][sourceprop]
+                                        else:
+                                            keystring = f"{keystring}{delimiter}{relres[0].data()['p'][sourceprop]}"
+                        setquery = f"MATCH (s:LIFT_TO_{targetnode.upper()}) WHERE s.parent_elementId = '{pid}' SET s.{targetprop} = '{keystring}'"
+                        conn.query(query=setquery, db='neo4j')
+
+
+
 
 def main(args):
-    print(f"Args.verbose is {str(args.verbose)}")
+    #print(f"Args.verbose is {str(args.verbose)}")
     if args.verbose >= 1:
         print("Parsing configuration file")
     configs = crdclib.readYAML(args.configfile)
@@ -228,10 +264,21 @@ def main(args):
         print(f"FromNodeList: {fromnodelist}")
 
     if args.verbose >= 1:
+        print("Setting SEVERE logging level")
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.ERROR)
+        logging.getLogger('neo4j').addHandler(handler)
+        logging.getLogger('neo4j').setLevel(logging.ERROR)
+
+
+    if args.verbose >= 1:
         print("Establishing database connection")
-    conn = Neo4jConnection(os.getenv('NEO4J_URI'), os.getenv('NEO4J_USERNAME'),os.getenv('NEO4J_PASSWORD'))
+    #conn = Neo4jConnection(os.getenv('NEO4J_URI'), os.getenv('NEO4J_USERNAME'),os.getenv('NEO4J_PASSWORD'))
+    conn = njc.Neo4jConnection(os.getenv('NEO4J_URI'), os.getenv('NEO4J_USERNAME'),os.getenv('NEO4J_PASSWORD'))
+    sys.exit(0)
 
     #fromnodelist = ['participant']
+    #fromnodelist = ['study']
 
     newmapping = {}
 
@@ -242,6 +289,9 @@ def main(args):
         if args.verbose >= 2:
             print(f"Query for {fromnode}\n{fromnodequery}")
         node_df = transform_df.query('lift_from_node == @fromnode')
+        #
+        #print(node_df)
+        #sys.exit(0)
         if args.verbose >= 2:
             print(f"Running {fromnodequery}")
         # Get all the existing nodes for the from node
@@ -274,7 +324,12 @@ def main(args):
             # Add the properties to the nodes
             newmapping = updateNewMapping(newmapping, proplistmap, args.verbose)
 
-    # The ndoes, properies, and values are all set in newmapping, print them to files if requested in configs
+        # And the extra fun part, add properties from the 'compound_keys' part of configs
+        # And this is in the wrong place. As-is, the lift_to nodes haven't been created yet.
+        # NEED TO MOVE
+        addCompoundKeys(configs['compound_keys'], conn, args.verbose)
+
+    # The nodes, properies, and values are all set in newmapping, print them to files if requested in configs
     if configs['makefiles']:
         if args.verbose >= 1:
             print(f"Printing transformed load sheets to {configs['outputdir']}")
@@ -299,6 +354,8 @@ def main(args):
             if args.verbose >= 2:
                 print(f"Setting relationships for node {fromnode}")
             addOfTransformRelationships(fromnode, conn, args.verbose)
+        # Add manual
+        manualAddTransformRelationships('sequencing_file', 'lift_to_file', conn, args.verbose)
 
 
     # There's a problem here:  If the key fields aren't mapped, there's no way to construct the relationships for the lift_to nodes.
@@ -316,6 +373,7 @@ def main(args):
     #At this point 2 sets of relationships to build:
     # 1) OF_TRANSFORM that links to the original node based on elementID  That can be done once the new node is added.
     # 2) The relationships from the new model.  This has to be done after all the new nodes are added.
+
 
 
 
