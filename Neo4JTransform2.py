@@ -99,7 +99,8 @@ def addEdgeKeys(dataframecollections, to_mdf):
             #print(f"Desitination Node {dstnode}")
             keylist = mdfTools.getKeyProperty(node=dstnode, mdf=to_mdf)
             for key in keylist:
-                temp_df.insert(0, f"{dstnode}.{key}", np.nan )
+                if f"{dstnode}.{key}" not in temp_df.columns.tolist():
+                    temp_df.insert(0, f"{dstnode}.{key}", np.nan )
         dataframecollections[srcnode] = temp_df
     return dataframecollections
 
@@ -126,30 +127,49 @@ def populateEdgeKeys(dataframecollections, transform_df, conn):
             # Need to query the ORIGINAL node for data so get that from the transform db
             tempnode_df = transform_df.query('lift_to_node == @fkeynode')
             tempprop_df = tempnode_df.query('lift_to_prop == @fkeyprop')
-            print(f"Node filtered mapping dataframe:\n{tempnode_df}")
-            print(f"Prop filtered mapping dataframe:\n{tempprop_df}")
+            #print(f"Node filtered mapping dataframe:\n{tempnode_df}")
+            #print(f"Prop filtered mapping dataframe:\n{tempprop_df}")
             #print(f"FKeynode: {fkeynode}\tFkeyprop: {fkeyprop}")
             for transformedindex, transformedrow in tempprop_df.iterrows():
                 # Transformedrow should have the original node in lift_from_node
                 print(f"Srcnode:{srcnode}\tFKeynode: {fkeynode}\tFkeyprop: {fkeyprop}\tLift_from_node: {transformedrow['lift_from_node']}")
                 if transformedrow['lift_from_node'].upper() in dbnodes:
                     # Get the query 
-                    fkquery = cqb.cypherGetBasicNodeQuery(transformedrow['lift_from_node'])
-                    print(fkquery)
-                    #for dataindex, datarow in data_df.iterrows():
-                        #fkquery = cqb.cypherElementIDQuery(transformedrow['lift_from_node'], datarow['parent_elementId'])
-                        #fkquery = cqb.cypherGetBasicNodeQuery(transformedrow['lift_from_node'])
-                        #print(fkquery)
-                        #if transformedrow['lift_from_node'] == 'sample':
-                            #print(fkquery)
-
-        '''for index, row in tempprop_df.iterrows():
-            for dataindex, datarow in 
-            # Lets try an elementID query:
-            print(row)
-            fkquery = cqb.cypherElementIDQuery(fkeynode, row['parent_elementId'])
-            print(fkquery)'''
-        # Try 1: Use the parent_elementId field in the srcnodes and see if the info is ther.
+                    #fkquery = cqb.cypherGetBasicNodeQuery(transformedrow['lift_from_node'])
+                    countquery = cqb.cypherRecordCount(transformedrow['lift_from_node'])
+                    #print(fkquery)
+                    countres = conn.query(query=countquery, db='neo4j')
+                    resultcount = countres[0]['count']
+                    print(f"Node being counted: {transformedrow['lift_from_node']}\nResult: {resultcount}")
+                    # If the row count is 1, it's likely we need to get and store the result to update multiple nodes
+                    if resultcount == 1:
+                        singlequery = cqb.cypherGetBasicNodeQuery(transformedrow['lift_from_node'])
+                        singleres = conn.query(query=singlequery, db='neo4j')
+                        for result in singleres:
+                            #This should be a result object
+                            noderes = result[transformedrow['lift_from_node']]
+                            # And this should be a node object and lift_from_prop should have the value we need
+                            propvalue = noderes[transformedrow['lift_from_prop']]
+                            #print(f"Single property {transformedrow['lift_from_prop']} has value {propvalue}")
+                            # So now we need to go and populated that single value into all the destination nodes
+                            #data_df.update(pd.DataFrame({fkey:propvalue}))
+                            for index, row in data_df.iterrows():
+                                row[fkey] = propvalue
+                                data_df.loc[index] = row
+                            dataframecollections[srcnode] = data_df
+                    #elif resultcount >= 2:
+                        #print("Multiple results")
+                        # The assumption here is that we need information from a specific node
+                    #    for index, row in data_df.iterrows():
+                    #        idquery = cqb.cypherElementIDQuery(transformedrow['lift_from_node'], row['parent_elementId'])
+                            #idresults = conn.query(query=idquery, db='neo4j')
+                            #for idresult in idresults:
+                            #    idnoderes = idresult[transformedrow['lift_from_node']]
+                            #    #idpropvalue = idnoderes[transformedrow['lift_from_prop']]
+                            #    idpropvalue = idnoderes[fkey]
+                            #    row[fkey] = idpropvalue
+                            #    data_df.loc[index] = row
+                    #    dataframecollections[srcnode] = data_df
 
 
     return dataframecollections
