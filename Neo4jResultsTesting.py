@@ -14,11 +14,20 @@ conn = conn = njc.Neo4jConnection(os.getenv('NEO4J_URI'), os.getenv('NEO4J_USERN
 
 elid = '4:aeadf63d-711d-4bb3-8a32-91ea3b539d56:28'
 query = cqb.cypherElementIDQuery(elid)
+print(query)
 
 results = conn.query(query=query, db='neo4j')
-print(results[0]['s'])
-print("\n")
-print(results[0]['s'][''])
+#results = conn.df_query(query=query,  db='neo4j')
+#print(results.head(5))
+#for index, row in results.iterrows():
+#    print(row)
+#proplist = results.columns.tolist()
+#for prop in proplist:
+#    for index, row in results.iterrows():
+#        print(f"Property: {prop}\tValue: {row[prop]}")
+print(results[0]['s'].keys())
+#print("\n")
+#print(results[0]['s'][''])
 
 #countquery = cqb.cypherRecordCount(testnode)
 #countquery = cqb.cypherGetBasicNodeQuery(testnode)
