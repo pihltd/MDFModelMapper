@@ -11,6 +11,8 @@ makefiles: True
 loadfiles: True
 makeedges: False
 modeledges: False
+lift_from_prefix: 'CCDI'
+lift_to_prefix: 'GC'
 compound_keys:
   - participant: 
       study_participant_id:

@@ -39,7 +39,7 @@ def nodeTrimmer(nodelist, mapping_df):
 def writeTransformedLoadsheets(dataframecollection, outputdir):
 
     for node, df in dataframecollection.items():
-        filename = f"{outputdir}{node}_TRANSFORMED.csv"
+        filename = f"{outputdir}GC_{node}_TRANSFORMED.csv"
         df.to_csv(filename, sep="\t", index=False)
 
 
@@ -65,6 +65,34 @@ def transformDecider(to_node, to_df, to_mapping_df, conn, dbnodelist):
     return to_df
 
 
+def nullRowRemover(loadsheets):
+    returninfo = {}
+    for node, loadsheet in loadsheets.items():
+        loadsheet.dropna(axis=0, how='all', inplace=True)
+        returninfo[node] = loadsheet
+    return returninfo
+
+
+
+def addModelName(loadsheets, modelhandle):
+    returninfo = {}
+    for node, loadsheet in loadsheets.items():
+        loadsheet['modelhandle'] = modelhandle
+        returninfo[node] = loadsheet
+    return returninfo
+
+
+'''def readAndUpdateTranforms(transformfile, liftfromprefix, lifttoprefix):
+    transform_df = pd.read_csv(transformfile, sep="\t")
+    for index, row in transform_df.iterrows():
+        transform_df.at[index, 'lift_from_node'] = f"{liftfromprefix}_{row['lift_from_node']}"
+        transform_df.at[index, 'lift_to_node'] = f"{lifttoprefix}_{row['lift_to_node']}"
+    return transform_df'''
+
+
+
+
+
 def main(args):
     # Basic configureation and setup
     if args.verbose >= 1:
@@ -74,6 +102,7 @@ def main(args):
     if args.verbose >= 1:
         print("Reading transformation files")
     #transform_df is the full model-model mapping file
+    #transform_df = readAndUpdateTranforms(configs['transform_file'], configs['lift_from_prefix'], configs['lift_to_prefix'])
     transform_df = pd.read_csv(configs['transform_file'], sep="\t")
     to_node_list = transform_df['lift_to_node'].unique().tolist()
 
@@ -96,6 +125,14 @@ def main(args):
 
     # Get the empty load sheets for the to_model
     temp_to_loadsheets = crdclib.mdfBuildLoadSheets(lift_to_mdf)
+
+    #NOTE: Hardcoded correction for the file_id property in file.
+    file_df = temp_to_loadsheets['file']
+    fileheaders = file_df.columns.tolist()
+    if 'file_id' not in fileheaders:
+        fileheaders.insert(0,'file_id')
+    newdf = pd.DataFrame(columns=fileheaders)
+    temp_to_loadsheets['file'] = newdf
    
     
 
@@ -117,6 +154,9 @@ def main(args):
         to_mapping_df = transform_df.query('lift_to_node == @to_node')
         to_df = transformDecider(to_node, to_df, to_mapping_df, conn, fromnodelist)
         to_loadsheets[to_node] = to_df
+
+    to_loadsheets = nullRowRemover(to_loadsheets)
+    to_loadsheets = addModelName(to_loadsheets, configs['lift_to_prefix'])
 
     
     writeTransformedLoadsheets(to_loadsheets, configs['outputdir'])

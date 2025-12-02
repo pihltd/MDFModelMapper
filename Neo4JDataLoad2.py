@@ -32,9 +32,25 @@ def main(args):
             print("Starting data load")
         for entry in filelist:
             for node, filename in entry.items():
-                propertylist = pd.read_csv(filename, sep=",").columns.to_list()
+                if args.verbose >=2:
+                    print(f"Creating load query for node {node} and file {filename}")
+                if 'separator' in configs:
+                    if configs['separator'] == 'comma':
+                        propertylist = pd.read_csv(filename, sep=",").columns.to_list()
+                    elif configs['separator'] == 'tab':
+                        propertylist = pd.read_csv(filename, sep="\t").columns.to_list()
+                else:
+                    # Assume tab as default separator
+                    propertylist = pd.read_csv(filename, sep="\t").columns.to_list()
                 keyprop = mdfTools.getKeyProperty(node, mdf)[0]
-                query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator='csv' )
+                if args.verbose >=2:
+                    print(f"Key property: {keyprop}\nProperty list: {propertylist}\n")
+                if 'nodeprefix' in configs:
+                #    node = f"{configs['nodeprefix']}_{node}"
+                    query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator=configs['separator'], nodeprefix=configs['nodeprefix'])
+                else:
+                    query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator=configs['separator'])
+                print(query)
                 if args.verbose >= 2:
                     print(query)
                 # Load data if there's an actual query
