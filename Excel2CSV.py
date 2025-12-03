@@ -2,7 +2,7 @@ import argparse
 from crdclib import crdclib
 import pandas as pd
 
-def buildSourceSheets(xlfilepath):
+def buildSourceSheets(xlfilepath, datamodel):
 
     sourcesheets = {}
 
@@ -19,6 +19,8 @@ def buildSourceSheets(xlfilepath):
                 temp_df = temp_df.dropna(axis=1, how='all')
             #Only load up sheets that aren't empty
             if not temp_df.empty:
+                # Add the datamodel column first
+                temp_df['modelhandle'] = datamodel
                 sourcesheets[node] = temp_df
     return sourcesheets
 
@@ -27,7 +29,8 @@ def main(args):
 
     ccdi_excel = '/media/vmshare/CCDI/phs003519_CCDI_Study_Manifest 1.xlsx'
     outdir = '/media/vmshare/CCDI/csv/'
-    sourcesheets = buildSourceSheets(ccdi_excel)
+    datamodel = 'CCDI'
+    sourcesheets = buildSourceSheets(ccdi_excel, datamodel)
 
     for node, sourcesheet in sourcesheets.items():
         filename = f"{outdir}{node}_CCDI.csv"

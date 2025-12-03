@@ -1,0 +1,6 @@
+mdffiles:
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
+nodeprefix: 'GC'
+modeledges: True
+parentedges: True

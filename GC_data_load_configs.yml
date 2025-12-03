@@ -1,0 +1,18 @@
+mdffiles:
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
+sourcefiles:
+  - diagnosis: '/home/pihl/temp2/GC_diagnosis_TRANSFORMED.csv'
+  - file: '/home/pihl/temp2/GC_file_TRANSFORMED.csv'
+  - genomic_info: '/home/pihl/temp2/GC_genomic_info_TRANSFORMED.csv'
+  - participant: '/home/pihl/temp2/GC_participant_TRANSFORMED.csv'
+  - program: '/home/pihl/temp2/GC_program_TRANSFORMED.csv'
+  - sample: '/home/pihl/temp2/GC_sample_TRANSFORMED.csv'
+  - study: '/home/pihl/temp2/GC_study_TRANSFORMED.csv'
+separator: 'tab'
+nodeprefix: 'GC'
+#manualedges:
+  #- src: dst
+  #- participant: study
+dataload: True
+edges: True
