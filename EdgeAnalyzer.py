@@ -5,6 +5,7 @@ from crdclib import crdclib
 import argparse
 import os
 import sys
+import json
 sys.path.insert(1,'../CRDCTransformationLibrary/src')
 import mdfTools
 import Neo4JConnection as njc
@@ -35,7 +36,9 @@ def main(args):
 
     if configs['modeledges']:
          # NOTE: The to_node (target model node) should be the MDF relationship src node. The key fields from the dst node should be added to the src node load sheet.
+         # This should all be WITHIN a model, no intermodel connections
         for node in dbnodelist:
+            print(f"Creating model edges for {node}")
             modelnode = node.replace(f"{configs['nodeprefix']}_", '').lower()
             srcedgelist = mdf.model.edges_by_src(mdf.model.nodes[modelnode])
             for edge in srcedgelist:
@@ -43,15 +46,38 @@ def main(args):
                 if 'nodeprefix' in configs:
                     newdstnode = f"{configs['nodeprefix'].lower()}_{dstnode}"
                 srckeylist = mdfTools.getKeyProperty(node=dstnode, mdf=mdf)
-                print(f"Node {modelnode}\tDSTnode: {newdstnode}\tSource key list: {srckeylist}")
+                #print(f"Node {modelnode}\tDSTnode: {dstnode}\tSource key list: {srckeylist}")
                 for srckey in srckeylist:
-                    edgequery = cqb.cypherRelationshipQuery(node, newdstnode, f"of_{modelnode}", srckey)
+                    #edgequery = cqb.cypherRelationshipQuery(node, newdstnode, f"of_{modelnode}", srckey)
+                    edgequery = cqb.cypherRelationshipQuery(node, dstnode, f"of_{modelnode}", srckey, configs['nodeprefix'])
                     print(edgequery)
-            #dstedgelist = mdf.model.edges_by_dst(mdf.model.nodes[modelnode])
-            #print(f"Node: {modelnode}\t Edges by Src: {srcedgelist}\t Edges by Dst: {dstedgelist}")
+                    conn.query(edgequery, db='neo4j')
 
-    #if configs['parentedges']:
+    if configs['parentedges']:
         # Create links to parent nodes based on elid
+        # Query for all instances of a node label
+        # Get the elids for the node
+        # 
+        #dbnodelist = ['gc_diagnosis']
+        for node in dbnodelist:
+            print(f"Creating TRANSFORM_OF for {node}")
+            modelnode = node.replace(f"{configs['nodeprefix']}_", '').lower()
+            childquery = cqb.cypherGetNodeQuery(node)
+            #print(childquery)
+            childresults = conn.query(childquery, db='neo4j')
+            for childresult in childresults:
+                #print(childresult)
+                parentelids = childresult[node.lower()]['parent_elementId'].replace("'", '"')
+                childelid = childresult['elid']
+                #print(parentelids)
+                parentelids = json.loads(parentelids)
+                for entry in parentelids:
+                    for parentnode, parentelid in entry.items():
+                        rellabel = f"TRANSFORM_OF_{parentnode.upper()}"
+                        elidquery = cqb.cypherElementIDRelationshipQuery(parentnode, node, rellabel, parentelid, childelid )
+                        #print(elidquery)
+                        conn.query(elidquery, db='neo4j')
+
 
     
 
