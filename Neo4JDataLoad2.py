@@ -45,52 +45,12 @@ def main(args):
                 keyprop = mdfTools.getKeyProperty(node, mdf)[0]
                 if args.verbose >=2:
                     print(f"Key property: {keyprop}\nProperty list: {propertylist}\n")
-                if 'nodeprefix' in configs:
-                #    node = f"{configs['nodeprefix']}_{node}"
-                    query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator=configs['separator'], nodeprefix=configs['nodeprefix'])
-                else:
-                    query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator=configs['separator'])
-                print(query)
+                query = cqb.cypherLoadCSVQuery(nodelabel=node, filename=filename, proplist=propertylist, keyprop=keyprop, separator=configs['separator'])
                 if args.verbose >= 2:
                     print(query)
                 # Load data if there's an actual query
                 if query is not None:
                     conn.query(query=query, db='neo4j')
-    
-    #Data is loaded, can now build relationships/edges
-    if configs['edges']:
-        if args.verbose >= 1:
-            print("Starting model-based relationship addition")
-        for entry in filelist:
-            for srcnode in entry.keys():
-                # Need a list of edges associated with the source node
-                edgelist = mdf.model.edges_by_src(mdf.model.nodes[srcnode])
-                for edge in edgelist:
-                    dstnode = edge.dst.handle
-                    keyproperty = mdfTools.getKeyProperty(dstnode, mdf)[0]
-                    edgelabel = f"OF_{srcnode.upper()}"
-                    edgequery = cqb.cypherRelationshipQuery(srcnode, dstnode, edgelabel, keyproperty)
-                    if edgequery is not None:
-                        if args.verbose >=2:
-                            print(edgequery)
-                        conn.query(query=edgequery, db='neo4j')
-        # If requested, add any relationships specified in the configuration file.
-        if 'manualedges' in configs:
-            if args.verbose >= 1:
-                print("Starting manual relationship addition")
-            manualedges = configs['manualedges']
-            for manualedge in manualedges:
-                for mansrcnode, mandstnode in manualedge.items():
-                    mankeyproperty = mdfTools.getKeyProperty(mandstnode, mdf)[0]
-                    manedgelabel = f"OF_{mansrcnode.upper()}"
-                    edgequery = cqb.cypherRelationshipQuery(mansrcnode, mandstnode, manedgelabel, mankeyproperty)
-                    if edgequery is not None:
-                        if args.verbose >= 2:
-                            print(edgequery)
-                        conn.query(query=edgequery, db='neo4j')
-                    else:
-                        print("Edgequery is none")
-
 
 
 

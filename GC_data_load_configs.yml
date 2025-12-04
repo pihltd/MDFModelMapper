@@ -10,9 +10,10 @@ sourcefiles:
   - sample: '/home/pihl/temp2/GC_sample_TRANSFORMED.csv'
   - study: '/home/pihl/temp2/GC_study_TRANSFORMED.csv'
 separator: 'tab'
-nodeprefix: 'GC'
+#nodeprefix: 'GC'
+fileprefix: 'GC'
 #manualedges:
   #- src: dst
   #- participant: study
 dataload: True
-edges: True
+edges: False

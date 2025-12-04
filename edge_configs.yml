@@ -1,6 +1,19 @@
+#mdffiles:
+#  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
+#  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
 mdffiles:
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/10.0.0/model-desc/cds-model-props.yml'
-nodeprefix: 'GC'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml'
 modeledges: True
-parentedges: True
+parentedges: False
+customedges: False
+cleanup: False
+cleannodes:
+  file: 
+    - file_id
+    - file_id
+#custominfo:
+# - srcnode:
+#   srcprop:
+#   dstnode:
+#   dstprop:

@@ -74,23 +74,13 @@ def nullRowRemover(loadsheets):
 
 
 
-def addModelName(loadsheets, modelhandle):
+def addModelName(loadsheets, modelhandle, modelversion):
     returninfo = {}
     for node, loadsheet in loadsheets.items():
         loadsheet['modelhandle'] = modelhandle
+        loadsheet['modelversion'] = modelversion
         returninfo[node] = loadsheet
     return returninfo
-
-
-'''def readAndUpdateTranforms(transformfile, liftfromprefix, lifttoprefix):
-    transform_df = pd.read_csv(transformfile, sep="\t")
-    for index, row in transform_df.iterrows():
-        transform_df.at[index, 'lift_from_node'] = f"{liftfromprefix}_{row['lift_from_node']}"
-        transform_df.at[index, 'lift_to_node'] = f"{lifttoprefix}_{row['lift_to_node']}"
-    return transform_df'''
-
-
-
 
 
 def main(args):
@@ -102,7 +92,6 @@ def main(args):
     if args.verbose >= 1:
         print("Reading transformation files")
     #transform_df is the full model-model mapping file
-    #transform_df = readAndUpdateTranforms(configs['transform_file'], configs['lift_from_prefix'], configs['lift_to_prefix'])
     transform_df = pd.read_csv(configs['transform_file'], sep="\t")
     to_node_list = transform_df['lift_to_node'].unique().tolist()
 
@@ -156,7 +145,7 @@ def main(args):
         to_loadsheets[to_node] = to_df
 
     to_loadsheets = nullRowRemover(to_loadsheets)
-    to_loadsheets = addModelName(to_loadsheets, configs['lift_to_prefix'])
+    to_loadsheets = addModelName(to_loadsheets, lift_to_mdf.handle, lift_to_mdf.version)
 
     
     writeTransformedLoadsheets(to_loadsheets, configs['outputdir'])

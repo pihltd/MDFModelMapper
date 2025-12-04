@@ -31,21 +31,21 @@ def fieldPopulator(fieldname, df, conn, verbose = 0):
 
     return df
 
-def getStudyID(node, field, conn):
+'''def getStudyID(node, field, conn):
     query = cqb.cypherGetBasicNodeQuery(node)
     results = conn.query(query=query, db='neo4j')
     studyId = results[0][node][field]
-    return studyId
+    return studyId'''
 
 
-def combofieldBreakUp(combofield):
+'''def combofieldBreakUp(combofield):
     combolist = combofield.split(".")
     searchnode = combolist[0]
     linknode = combolist[1]
     field = combolist[2]
-    return searchnode, linknode, field
+    return searchnode, linknode, field'''
 
-def getParticipantID(node, field, value, conn):
+'''def getParticipantID(node, field, value, conn):
     sample_query = cqb.cypherSingleWhereQuery(node, field, value)
     sample_results = conn.query(query=sample_query, db='neo4j')
     if len(sample_results) > 0:
@@ -53,20 +53,20 @@ def getParticipantID(node, field, value, conn):
         participant_id = sample_results[0][node.lower()]['participant.participant_id']
         return participant_id
     else:
-        return None
+        return None'''
 
 
-def  populateGenomicInfoFileFileID(df, conn):
+'''def  populateGenomicInfoFileFileID(df, conn):
     df['file.file_id'] = df['file.file_id'].astype('string')
     for index, row in df.iterrows():
         query = cqb.cypherElementIDQuery(row['parent_elementId'])
         results = conn.query(query=query, db='neo4j')
         fileid = results[0]['s']['id']
         df.loc[index, 'file.file_id'] = fileid
-    return df
+    return df'''
 
 
-def populateDiagnosisStudyParticipant(combofield, df, conn):
+'''def populateDiagnosisStudyParticipant(combofield, df, conn):
     searchnode, linknode, field = combofieldBreakUp(combofield)
     study_id = getStudyID('study', 'study_id', conn)
     # Need to set the column to string to avoid Pandas having a conniption
@@ -76,10 +76,10 @@ def populateDiagnosisStudyParticipant(combofield, df, conn):
         results = conn.query(query=query, db='neo4j')
         participant_id = results[0]['s'][f"{linknode}.{'participant_id'}"]
         df.loc[index, 'participant.study_participant_id'] = f"{study_id}_{participant_id}"
-    return df
+    return df'''
 
 
-def populateFileSampleSample_id(combofield, df, conn):
+'''def populateFileSampleSample_id(combofield, df, conn):
     # This should be in the original record
     searchnode, linknode, field = combofieldBreakUp(combofield)
     study_id = getStudyID('study', 'study_id', conn)
@@ -93,10 +93,10 @@ def populateFileSampleSample_id(combofield, df, conn):
         # And the best time to get the participant ID is when we KNOW we've got a sample ID
         participant_id = getParticipantID(linknode, field, id, conn)
         df.loc[index, 'participant.study_participant_id'] = f"{study_id}_{participant_id}"
-    return df
+    return df'''
 
 
-def populateStudy_Study_id(df, conn):
+'''def populateStudy_Study_id(df, conn):
     node = 'study'
     field = 'study_id'
     # There should be only one row for study
@@ -105,9 +105,9 @@ def populateStudy_Study_id(df, conn):
     if  countres[0]['count'] == 1:
         studyId = getStudyID(node, field, conn)
         df[f"{node}.{field}"] = studyId
-    return df
+    return df'''
 
-def populateParticipant_study_participant_id(combofield, df, conn):
+'''def populateParticipant_study_participant_id(combofield, df, conn):
     combolist = combofield.split(".")
     searchnode = combolist[0]
     linknode = combolist[1]
@@ -124,7 +124,7 @@ def populateParticipant_study_participant_id(combofield, df, conn):
         pid = results[0]['s'][f"{linknode}.{'participant_id'}"]
         spid = f"{studyid}_{pid}"
         df.loc[index, f"{linknode}.{field}"] = spid
-    return df
+    return df'''
 
 
 
@@ -158,10 +158,8 @@ def buildDestinationDataframes(dataframecollection, fromnode_df, lift_to_mdf):
                         final.append(prop)
                 new_df = pd.DataFrame(columns=final, dtype='string')
                 #new_df = new_df.astype('string')
-                dataframecollection[to_node] = new_df
             else:
                 new_df = pd.DataFrame(columns=proplist, dtype='string')
-                #new_df = new_df.astype('string')
                 dataframecollection[to_node] = new_df
     return dataframecollection
 
@@ -200,19 +198,9 @@ def buildTransformLoadsheets(movenode, movenode_df, conn, loadsheets, lift_to_md
         #movenodedata shoudl be a neo4j Node object
         for prop in lift_from_props:
             loadline[prop] = movenodedata[prop]
-            if prop == 'pdx':
-                print(f"Load Line: {loadline}")
-        # NOTE: Rethink this a little and don't add an elementId if that's the only thing in the row.
         loadline['parent_elementId'] = movenoderesult['elid']
         for lift_to_node in lift_to_nodes:
             temp_df = loadsheets[lift_to_node]
-            #print(temp_df)
-            #print(f"Loadline: {loadline}")
-            #loadline_df = pd.DataFrame(loadline, index=[0], dtype='string')
-            #loadline_df = pd.DataFrame([loadline])
-            #temp_df.loc[len(temp_df)] = loadline
-            #new_df = pd.concat([temp_df, loadline_df])
-            #loadsheets[lift_to_node] = new_df
             temp_df.loc[len(temp_df)] = loadline
             loadsheets[lift_to_node] = temp_df
     return loadsheets
@@ -230,10 +218,13 @@ def addEdgeInfo(movenode, movenode_df, conn, loadsheets, lift_to_mdf):
 
 
 
-def writeTransformedLoadsheets(dataframecollection, outputdir):
+def writeTransformedLoadsheets(dataframecollection, outputdir, fileprefix=None):
 
     for node, df in dataframecollection.items():
-        filename = f"{outputdir}{node}_TRANSFORMED.csv"
+        if fileprefix is None:
+            filename = f"{outputdir}{node}_TRANSFORMED.csv"
+        else:
+            filename = f"{outputdir}{fileprefix}_{node}_TRANSFORMED.csv"
         df.to_csv(filename, sep="\t", index=False)
 
 
@@ -281,10 +272,7 @@ def main (args):
         # fromnode_df is the mapping information specific to the individual database node
         dataframecollections = buildDestinationDataframes(dataframecollections, fromnode_df, lift_to_mdf)
         
-        # At this point, dataframecollections has key: to_node value: empty dataframes with mapped to_node properties as columns.
-    #loadsheets = {}
-    #for key, value in dataframecollections.items():
-    #        print(f"\nNode: {key}\nDataframe:{value}")
+    # At this point, dataframecollections has key: to_node value: empty dataframes with mapped to_node properties as columns.
     # For every node in the database, need to move the db information into a transformed load sheet
     for movenode in fromnodelist:
         movenode = movenode.lower()
@@ -293,7 +281,7 @@ def main (args):
         dataframecollections = buildTransformLoadsheets(movenode, movenode_df, conn, dataframecollections, lift_to_mdf)
         dataframecollections = addEdgeInfo(movenode, movenode_df, conn, dataframecollections, lift_to_mdf)
 
-    writeTransformedLoadsheets(dataframecollections, configs['outputdir'])
+    writeTransformedLoadsheets(dataframecollections, configs['outputdir'], configs['fileprefix'])
 
 
 

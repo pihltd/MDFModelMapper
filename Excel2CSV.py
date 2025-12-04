@@ -1,8 +1,9 @@
 import argparse
 from crdclib import crdclib
 import pandas as pd
+import bento_mdf
 
-def buildSourceSheets(xlfilepath, datamodel):
+def buildSourceSheets(xlfilepath, datamodel, modelversion):
 
     sourcesheets = {}
 
@@ -21,6 +22,7 @@ def buildSourceSheets(xlfilepath, datamodel):
             if not temp_df.empty:
                 # Add the datamodel column first
                 temp_df['modelhandle'] = datamodel
+                temp_df['modelversion'] = modelversion
                 sourcesheets[node] = temp_df
     return sourcesheets
 
@@ -29,8 +31,10 @@ def main(args):
 
     ccdi_excel = '/media/vmshare/CCDI/phs003519_CCDI_Study_Manifest 1.xlsx'
     outdir = '/media/vmshare/CCDI/csv/'
-    datamodel = 'CCDI'
-    sourcesheets = buildSourceSheets(ccdi_excel, datamodel)
+    #datamodel = 'CCDI'
+    mdffiles= ['https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model-props.yml','https://raw.githubusercontent.com/CBIIT/ccdi-model/refs/heads/main/model-desc/ccdi-model.yml']
+    mdf = bento_mdf.MDF(*mdffiles)
+    sourcesheets = buildSourceSheets(ccdi_excel, mdf.handle, mdf.version)
 
     for node, sourcesheet in sourcesheets.items():
         filename = f"{outdir}{node}_CCDI.csv"

@@ -14,8 +14,9 @@ sourcefiles:
   - study_personnel: '/media/vmshare/CCDI/csv/study_personnel_CCDI.csv'
 separator: 'comma'
 #nodeprefix: 'CCDI'
+fileprefix: 'CCDI'
 manualedges:
   #- src: dst
   - participant: study
 dataload: True
-edges: True
+edges: False
