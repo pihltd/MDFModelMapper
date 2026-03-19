@@ -1,0 +1,19 @@
+lift_from_model_files:
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-dcc-model/refs/heads/main/model-desc/ccdi-dcc-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/ccdi-dcc-model/refs/heads/main/model-desc/ccdi-dcc-model-props.yml'
+lift_to_model_files:
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model-props.yml'
+cde_mapping: True
+string_match_mapping: True
+value_mapping: False
+synonym_mapping: False
+mapping_report: True
+unmapped_report: True
+autoname: True
+savepath: '/media/sf_VMShare/TransformTest/'
+filepath: '/media/sf_VMShare/TransformTest/'
+mappingfile: 'CCDI-DCC_v1.0.0-CDS_v11.0.3.tsv'
+mismatchfile: 'CCDI-DCC_v1.0.0-CDS_v11.0.3_MISMATCH_REPORT.tsv'
+savefile: 'CCDI-CCDI-DCC_v1.0.0-CDS_v11.0.3_CLEANED.tsv'
+tmdffile: 'CCDI-CDS_TMDF.yml'

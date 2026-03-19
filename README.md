@@ -34,14 +34,14 @@ Uses the output from *MDFModelMapper* and the same YAML configuration file as *M
 -v: (Optional) Verbosity level.  Verbosity can be increadsed by using additional v's (-vv, -vvv)\
 -h: (Optional) Display help information\ 
 
-Takes a YAML config file (see *mismatchremoval_config.yml*) adn will use the outputs of *MDFModelMapper* and *MDFMappingAnalysis* to remove incorrect mismatchs from the mapping file.  It is **STRONGLY** recommended that the output from *MDFMappingAnalysis* is edited first to remove any lines that are actually correct mappings.  Each remaning line in the output from *MDFMappingAnalysis* will be removed from the output of *MDFModelMapper*.
+Takes a YAML config file (see *mismatchremoval_config.yml*) and will use the outputs of *MDFModelMapper* and *MDFMappingAnalysis* to remove incorrect matches from the mapping file.  It is **STRONGLY** recommended that the output from *MDFMappingAnalysis* is edited first to remove any lines that are actually correct mappings.  Each remaning line in the output from *MDFMappingAnalysis* will be removed from the output of *MDFModelMapper*.
 
 
 
 # YAML configurations
 ## MDFModelMapper, MDFMappingAnalysis
 - *lift_from_model_files*: List of String.  A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the source for mapping.
-- *lift_from_to_files*: List of String. A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the target for mapping.
+- *lift_to_model_files*: List of String. A list of MDF files (can be a list of GitHub RAW URLs) that represnt the model that will be the target for mapping.
 - *cde_mapping*: Boolean.  True enables CDE ID property mapping, False prevents CDE ID property mapping.
 - *string_match_mapping*: Boolean.  True enables string-based property mapping, False prevents string-based property mapping.
 - *value_mapping*: Boolean.  True enables permissible value mapping by concept code, False prevents PV mapping.
