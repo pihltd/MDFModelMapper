@@ -1,0 +1,33 @@
+#
+# List the model files here.  Can be local or URLs
+#
+lift_from_model_files:
+  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/0.0.1/model-desc/crdc-submission-model-properties.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/0.0.1/model-desc/crdc-submission-model.yml'
+lift_to_model_files:  
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model-props.yml'
+#
+# Select the types of mappings to be done
+cde_mapping: True
+string_match_mapping: True
+value_mapping: False
+synonym_mapping: False
+#
+#  Set to True if you want a report file generated
+mapping_report: True
+unmapped_report: True
+#
+# If autoname is set to true, filenames are not required, but a save path is. 
+# Use a trailing slash (\ or /) on the save path
+autoname: True
+#
+# Enter the path to save files to.  Use a trailing slash (\ or /) on the save path
+savepath: '/media/sf_VMShare/ModelMapping/CRDCSubmission2GC/'
+# If autoname is set to False, filenames are requried. 
+#mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
+#mapping_file: './mapped.tsv'
+# Value mapping will be done if there is a file name here.
+#value_map_file: None 
+#value_map_file: 'Synonym_value_mapping.tsv'
+#mapping_mismatch_file: 'Mismatch_mapping.tsv'
