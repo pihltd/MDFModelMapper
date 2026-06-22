@@ -1,0 +1,5 @@
+filepath: 'C:\Users\pihltd\Documents\VMShare\ModelMapping\CRDCSubmission2GC\'
+mappingfile: 'CRDC_Submission_0.1-CDS_v12.0.0.tsv'
+mismatchfile: 'CRDC_Submission_0.1-CDS_v12.0.0_MISMATCH_REPORT.tsv'
+#mismatchfile: 'CDS_v9.0.0-CDS_v10.0.0_Cleanup.csv'
+savefile: 'CRDC_Submission_0.1-CDS_v12.0.0_DEMISMATCHED.tsv'
