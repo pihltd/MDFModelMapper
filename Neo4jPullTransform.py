@@ -134,7 +134,7 @@ def main(args):
      # Add a column for the parent elementId
     to_loadsheets = addElementID(to_loadsheets)
 
-    #Clean up transform_df to drop all node lables not in the database
+    #Clean up transform_df to drop all node labels not in the database
     for to_node in to_node_list:
         if to_node not in tonodelist:
             transform_df = transform_df[transform_df.lift_from_node != to_node]
