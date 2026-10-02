@@ -10,6 +10,7 @@ import math
 # Node/Property mismatch:
 #  Same CDE, Different properties
 # Same properties, different nodes
+# Significant Node mistmatch:  SDM to GC has several biospecimen: image mappings that use the same CDE, but may be fundamentally different.
 
 def mdfToDF(mdf, verbose=False):
     # Returns a dataframe of nodes and their properties

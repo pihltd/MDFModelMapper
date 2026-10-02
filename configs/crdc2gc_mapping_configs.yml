@@ -2,8 +2,8 @@
 # List the model files here.  Can be local or URLs
 #
 lift_from_model_files:
-  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/0.0.1/model-desc/crdc-submission-model-properties.yml'
-  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/0.0.1/model-desc/crdc-submission-model.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/main/model-desc/crdc-submission-model-properties.yml'
+  - 'https://raw.githubusercontent.com/CBIIT/crdc-submission-model/refs/heads/main/model-desc/crdc-submission-model.yml'
 lift_to_model_files:  
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model.yml'
   - 'https://raw.githubusercontent.com/CBIIT/cds-model/refs/heads/main/model-desc/cds-model-props.yml'
@@ -23,7 +23,8 @@ unmapped_report: True
 autoname: True
 #
 # Enter the path to save files to.  Use a trailing slash (\ or /) on the save path
-savepath: '/media/sf_VMShare/ModelMapping/CRDCSubmission2GC/'
+#savepath: '/media/sf_VMShare/ModelMapping/CRDCSubmission2GC/'
+savepath: 'C:\Users\pihltd\Documents\VMShare\ModelMapping\CRDCSubmission2GC\'
 # If autoname is set to False, filenames are requried. 
 #mapping_file: './GC_9.0.1-CDS_10.0.0.tsv'
 #mapping_file: './mapped.tsv'
